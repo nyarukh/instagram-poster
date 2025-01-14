@@ -1,0 +1,67 @@
+import React, { useState } from 'react';
+
+function App() {
+  const [accounts, setAccounts] = useState([]);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [caption, setCaption] = useState('');
+  const [file, setFile] = useState(null);
+
+  const addAccount = async () => {
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
+
+    const response = await fetch('http://localhost:8000/add-account/', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (data.message) {
+      setAccounts([...accounts, username]);
+      alert(data.message);
+    } else {
+      alert(data.error);
+    }
+  };
+
+  const postContent = async () => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('caption', caption);
+
+    const response = await fetch('http://localhost:8000/post/', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+    alert(data.message || data.error);
+  };
+
+  return (
+    <div>
+      <h1>Instagram Poster</h1>
+
+      <h2>Add Account</h2>
+      <input type="text" placeholder="Username" onChange={(e) => setUsername(e.target.value)} />
+      <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
+      <button onClick={addAccount}>Add Account</button>
+
+      <h2>Post Content</h2>
+      <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+      <input type="text" placeholder="Caption" onChange={(e) => setCaption(e.target.value)} />
+      <button onClick={postContent}>Post to All Accounts</button>
+
+      <h2>Added Accounts</h2>
+      <ul>
+        {accounts.map((acc, index) => (
+          <li key={index}>{acc}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
